@@ -13,45 +13,96 @@ dotenv.config();
 
 const app = express();
 
-// Middlewares
+const allowedOrigins = [
+  "http://localhost:5173",
+];
+
+if (process.env.CLIENT_URL) {
+  allowedOrigins.push(
+    process.env.CLIENT_URL
+  );
+}
+
+// CORS middleware
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (
+      origin,
+      callback
+    ) => {
+      // Allow tools and server-to-server
+      // requests without an Origin header
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (
+        allowedOrigins.includes(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(
+        new Error(
+          "Origin is not allowed by CORS"
+        )
+      );
+    },
     credentials: true,
   })
 );
 
 app.use(express.json());
 
-// Routes
+// Authentication routes
+app.use(
+  "/api/auth",
+  authRoutes
+);
 
-// Authentication
-app.use("/api/auth", authRoutes);
+// User routes
+app.use(
+  "/api/user",
+  userRoutes
+);
 
-// User
-app.use("/api/user", userRoutes);
+// Trip routes
+app.use(
+  "/api/trips",
+  tripRoutes
+);
 
-// Trips
-app.use("/api/trips", tripRoutes);
+// AI routes
+app.use(
+  "/api/ai",
+  aiRoutes
+);
 
-// AI Generator
-app.use("/api/ai", aiRoutes);
+// Weather routes
+app.use(
+  "/api/weather",
+  weatherRoutes
+);
 
-// Weather
-app.use("/api/weather", weatherRoutes);
-
-// Test API
-app.get("/", (req, res) => {
+// Health-check route
+app.get("/", (_req, res) => {
   res.json({
-    message: "🚀 VoyageAI Backend Running",
+    message:
+      "🚀 VoyageAI Backend Running",
   });
 });
 
-// MongoDB Connection
+// MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URI as string)
+  .connect(
+    process.env.MONGO_URI as string
+  )
   .then(() => {
-    console.log("✅ MongoDB Connected");
+    console.log(
+      "✅ MongoDB Connected"
+    );
   })
   .catch((error) => {
     console.log(
@@ -60,11 +111,11 @@ mongoose
     );
   });
 
-// Server
-const PORT = process.env.PORT || 5000;
+const PORT =
+  process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(
-    `🚀 Server running on http://localhost:${PORT}`
+    `🚀 Server running on port ${PORT}`
   );
 });
