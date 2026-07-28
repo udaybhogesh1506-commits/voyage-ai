@@ -1,0 +1,13 @@
+server/.env
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+server/testdb.js
