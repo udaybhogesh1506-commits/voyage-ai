@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes";
 import tripRoutes from "./routes/tripRoutes";
 import aiRoutes from "./routes/aiRoutes";
 import weatherRoutes from "./routes/weatherRoutes";
+import adminRoutes from "./routes/adminRoutes";
 
 dotenv.config();
 
@@ -30,15 +31,17 @@ app.use(
       origin,
       callback
     ) => {
-      // Allow tools and server-to-server
-      // requests without an Origin header
+      // Allow server-to-server requests
+      // without an Origin header
       if (!origin) {
         callback(null, true);
         return;
       }
 
       if (
-        allowedOrigins.includes(origin)
+        allowedOrigins.includes(
+          origin
+        )
       ) {
         callback(null, true);
         return;
@@ -50,10 +53,12 @@ app.use(
         )
       );
     },
+
     credentials: true,
   })
 );
 
+// Parse incoming JSON
 app.use(express.json());
 
 // Authentication routes
@@ -86,13 +91,22 @@ app.use(
   weatherRoutes
 );
 
+// Private admin routes
+app.use(
+  "/api/admin",
+  adminRoutes
+);
+
 // Health-check route
-app.get("/", (_req, res) => {
-  res.json({
-    message:
-      "🚀 VoyageAI Backend Running",
-  });
-});
+app.get(
+  "/",
+  (_req, res) => {
+    res.json({
+      message:
+        "🚀 VoyageAI Backend Running",
+    });
+  }
+);
 
 // MongoDB connection
 mongoose
@@ -105,7 +119,7 @@ mongoose
     );
   })
   .catch((error) => {
-    console.log(
+    console.error(
       "❌ MongoDB Connection Failed:",
       error
     );

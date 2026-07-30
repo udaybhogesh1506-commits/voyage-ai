@@ -1,6 +1,6 @@
 import Sidebar from "../components/dashboard/Sidebar";
 
-import ProfileCard from "../components/profile/ProfileCard";
+import ProfileCard from "../components/ProfileCard";
 import TravelPreferences from "../components/profile/TravelPreferences";
 import FavoritePlaces from "../components/profile/FavoritePlaces";
 

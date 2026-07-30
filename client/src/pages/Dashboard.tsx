@@ -30,9 +30,53 @@ interface Trip {
   createdAt?: string;
 }
 
+interface LoggedInUser {
+  id?: string;
+  name?: string;
+  email?: string;
+}
+
 type TripFilter =
   | "all"
   | "favorites";
+
+// Get the logged-in user from localStorage
+const getLoggedInUser =
+  (): LoggedInUser | null => {
+    try {
+      const savedUser =
+        localStorage.getItem("user");
+
+      if (!savedUser) {
+        return null;
+      }
+
+      return JSON.parse(savedUser);
+    } catch (error) {
+      console.error(
+        "USER DATA ERROR:",
+        error
+      );
+
+      return null;
+    }
+  };
+
+// Create greeting based on the user's local time
+const getTimeGreeting = () => {
+  const currentHour =
+    new Date().getHours();
+
+  if (currentHour < 12) {
+    return "Good Morning";
+  }
+
+  if (currentHour < 17) {
+    return "Good Afternoon";
+  }
+
+  return "Good Evening";
+};
 
 function Dashboard() {
   const [trips, setTrips] =
@@ -48,6 +92,16 @@ function Dashboard() {
     useState<TripFilter>("all");
 
   const navigate = useNavigate();
+
+  const loggedInUser =
+    getLoggedInUser();
+
+  const userName =
+    loggedInUser?.name?.trim() ||
+    "Traveler";
+
+  const greeting =
+    getTimeGreeting();
 
   const loadTrips = async () => {
     try {
@@ -128,7 +182,10 @@ function Dashboard() {
               : trip
           )
           .sort(
-            (firstTrip, secondTrip) =>
+            (
+              firstTrip,
+              secondTrip
+            ) =>
               Number(
                 secondTrip.isFavorite
               ) -
@@ -176,7 +233,7 @@ function Dashboard() {
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-10">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold">
-              Good Evening, Uday 👋
+              {greeting}, {userName} 👋
             </h1>
 
             <p className="text-gray-400 mt-3 text-lg">
@@ -188,7 +245,9 @@ function Dashboard() {
           <button
             type="button"
             onClick={() =>
-              navigate("/trip-planner")
+              navigate(
+                "/trip-planner"
+              )
             }
             className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold transition self-start lg:self-auto"
           >
@@ -279,10 +338,13 @@ function Dashboard() {
             <button
               type="button"
               onClick={() =>
-                setFilter("favorites")
+                setFilter(
+                  "favorites"
+                )
               }
               className={`px-5 py-2 rounded-lg transition ${
-                filter === "favorites"
+                filter ===
+                "favorites"
                   ? "bg-red-600 text-white"
                   : "text-gray-400 hover:text-white"
               }`}
@@ -294,13 +356,16 @@ function Dashboard() {
 
         {/* Trip cards */}
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {displayedTrips.length > 0 ? (
+          {displayedTrips.length >
+          0 ? (
             displayedTrips.map(
               (trip) => (
                 <TripCard
                   key={trip._id}
                   trip={trip}
-                  onDelete={removeTrip}
+                  onDelete={
+                    removeTrip
+                  }
                   onFavorite={
                     handleFavorite
                   }
@@ -315,7 +380,8 @@ function Dashboard() {
           ) : (
             <div className="col-span-full bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center">
               <p className="text-gray-400 text-lg">
-                {filter === "favorites"
+                {filter ===
+                "favorites"
                   ? "You have not added any favorite trips yet. Click the heart on a trip to add it."
                   : "No trips created yet. Start planning your first adventure!"}
               </p>
